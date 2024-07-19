@@ -47,6 +47,28 @@
             }
             window.location.href = url.toString();
         }
+
+         $(document).ready(function () {
+             $("#car-list").sortable({
+                 axis: "xy",
+                 update: function (event, ui) {
+                     var newPositions = $(this).sortable('toArray', {attribute: 'data-car-id'});
+
+                     $.ajax({
+                         type: "POST",
+                         url: "/post_switch_car/",
+                         headers: {"X-CSRFToken": getCookie("csrftoken")},
+                         data: {car: newPositions},
+                         success: function (data) {
+                             console.log(data.message);
+                         },
+                         error: function (error) {
+                             console.log("Error updating positions");
+                         }
+                     });
+                 }
+             });
+         })
     </script>
 </body>
 </html>
