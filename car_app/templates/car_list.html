@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Car List</title>
     <style>
@@ -31,44 +31,59 @@
                 {% elif car.carColor|lower == 'blue' %}
                     <img src="{% static 'bluecar.png' %}" alt="{{ car.carName }}">
                 {% endif %}
-                <p>{{ car.carName }}</p>
+                <h1>{{ car.carName }}</h1>
             </li>
         {% endfor %}
     </ul>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
-        function filterCars(color) {
-            let url = new URL(window.location.href);
-            if (color) {
-                url.searchParams.set('color', color);
-            } else {
-                url.searchParams.delete('color');
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
             }
-            window.location.href = url.toString();
         }
+        return cookieValue;
+    }
 
-         $(document).ready(function () {
-             $("#car-list").sortable({
-                 axis: "xy",
-                 update: function (event, ui) {
-                     var newPositions = $(this).sortable('toArray', {attribute: 'data-car-id'});
+    function filterCars(color) {
+        let url = new URL(window.location.href);
+        if (color) {
+            url.searchParams.set('color', color);
+        } else {
+            url.searchParams.delete('color');
+        }
+        window.location.href = url.toString();
+    }
 
-                     $.ajax({
-                         type: "POST",
-                         url: "/post_switch_car/",
-                         headers: {"X-CSRFToken": getCookie("csrftoken")},
-                         data: {car: newPositions},
-                         success: function (data) {
-                             console.log(data.message);
-                         },
-                         error: function (error) {
-                             console.log("Error updating positions");
-                         }
-                     });
-                 }
-             });
-         })
-    </script>
+    $(document).ready(function () {
+        $("#car-list").sortable({
+            axis: "xy",
+            update: function (event, ui) {
+                var newPositions = $(this).sortable('toArray', {attribute: 'data-car-id'});
+
+                $.ajax({
+                    type: "POST",
+                    url: "/switch_car/",
+                    headers: {"X-CSRFToken": getCookie("csrftoken")},
+                    data: {car: newPositions},
+                    success: function (data) {
+                        console.log(data.message);
+                    },
+                    error: function (error) {
+                        console.log("Error updating positions");
+                    }
+                });
+            }
+        });
+    });
+</script>
 </body>
 </html>
